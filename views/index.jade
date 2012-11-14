@@ -1,0 +1,12 @@
+extends layout
+
+block content
+    h1= title
+    p Welcome to #{title}
+        form(action='/get_connections', method='POST',  enctype='multipart/form-data')
+            fieldset
+                label File:
+                input(type="file", name="file")
+                input(type="text", name="text")
+                input(type="submit")
+
