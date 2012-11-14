@@ -1,16 +1,72 @@
-define(['config'], function (config) {
+define(['config', 'lib/xhr2'], function (config, xhr) {
     "use strict";
     var _connectionsPool = {},
         _file,
         _listenIntervalID;
 
+    var Connection = function (options) {
+        var _id = options.id,
+            _uploadedSize = 0,
+            _chunkSize = config('chunkSize'),
+            _totalSize = _file.getSize();
+
+        var _isEndOfFile = function () {
+            return _uploadedSize === _totalSize;
+        };
+
+        var _destroy = function () {
+            console.log('destroy connection with id: ' + _id);
+            delete _connectionsPool[_id];
+        };
+
+        var _send = function () {
+            var fileChunk = _file.slice(_uploadedSize, _uploadedSize + _chunkSize);
+            console.log(fileChunk.size);
+            xhr({
+                type: 'POST',
+                url: '/start_transfer',
+                data: fileChunk,
+                onSuccess: function () {
+                    if (_isEndOfFile()) {
+                        _destroy();
+                    } else {
+                        _uploadedSize = _uploadedSize + fileChunk.size;
+                        _send();
+                    }
+                }
+            });
+        };
+
+        var _startTransfer = function () {
+            _send();
+        };
+
+        _startTransfer();
+
+        this.getId = function () {
+            return _id;
+        };
+    };
+
+    var _initConnections = function (data) {
+        if (data.connections) {
+            data.connections.forEach(function (options) {
+                if (_connectionsPool.hasOwnProperty(options.id)) {
+                    return;
+                }
+                console.log('new connection with id' + options.id);
+                _connectionsPool[options.id] = new Connection(options);
+            });
+        }
+    };
+
     var _startListen = function () {
-        _listenIntervalID = setInterval(function () {
+        _listenIntervalID = setTimeout(function () {
             jQuery.ajax({
                 url: '/get_connections',
                 type: 'POST',
                 success: function (data) {
-                    _initConnection(data);
+                    _initConnections(data);
                 }
             });
         }, config('pingTime'));
@@ -20,70 +76,19 @@ define(['config'], function (config) {
         clearInterval(_listenIntervalID);
     };
 
-    var _initConnection = function (data) {
-        if (data.connections) {
-            data.connections.forEach(function (connectionOptions) {
-                if (_connectionsPool.hasOwnProperty(connectionOptions.id)) {
-                    return;
-                }
-                console.log('new connection with id' + connectionOptions.id);
-                _connectionsPool[connectionOptions.id] = new Connection(connectionOptions);
-            });
-        }
-    };
-
-    var Connection = function (file) {
-        var _id = 0,
-            _uploadedSize = 0,
-            _totalSize = file.size;
-
-        var _clearSelf = function () {
-            delete _connectionsPool[_id];
-        };
-
-        var _send = function () {
-            console.log(jQuery.ajaxSettings.xhr());
-            var xhr = jQuery.ajaxSettings.xhr();
-
-            xhr.open('POST', '/start_transfer');
-            xhr.send(file);
-
-//            if (_uploadedSize < _totalSize) {
-//                jQuery.ajax({
-//                    url: '/start_transfer',
-//                    type: 'POST',
-//                    data: 'file'
-////                    processData: false,
-////                        id: _id,
-////                        totalSize: _totalSize,
-////                        fileChunk: 'sadasdasdsd'
-//////                        fileChunk: _file.slice(_uploadedSize, config('chunkSize'))
-////                    },
-////                    success: _send
-//                });
-//            }
-        };
-
-        this.getId = function () {
-            return _id;
-        };
-
-        this.startTransfer = function () {
-            _send();
-        };
-
-        this.startTransfer();
-
-    };
-
     var _init = function (file) {
         _file = file;
-        var connection = new Connection(file);
-//        _startListen();
+        _startListen();
     };
 
     return {
-        init: _init
+        init: _init,
+        getConnectionsPool: function () {
+            return _connectionsPool;
+        },
+        startListen: _startListen,
+        stopListen: _stopListen
     };
 
 });
+

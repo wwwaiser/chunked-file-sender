@@ -47,10 +47,16 @@ app.get('/', routes.index);
 app.get('/users', user.list);
 app.post('/start_transfer', function (req, res) {
     console.log(req.body);
-    console.log(req.files);
+    res.send({
+        success: true,
+        data: ''
+    });
+});
+
+app.post('/get_connections', function (req, res) {
     res.send({
         connections: [
-            {id: 'dsfgdhf'}
+            {id: '777'}
         ]
     });
 });
