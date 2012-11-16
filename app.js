@@ -5,13 +5,13 @@
 
 var express = require('express')
   , routes = require('./routes')
-  , user = require('./routes/user')
   , http = require('http')
+  , manager = require('./routes/connectionsManager')
   , path = require('path');
 
 var app = express();
 
-app.configure(function(){
+app.configure(function () {
     app.set('port', process.env.PORT || 3000);
     app.set('views', __dirname + '/views');
     app.set('view engine', 'jade');
@@ -19,19 +19,25 @@ app.configure(function(){
     app.use(express.logger('dev'));
     app.use(express.bodyParser());
     app.use(express.methodOverride());
-    app.use (function(req, res, next) {
-        var data='';
-        console.log('in use');
-        req.setEncoding('utf8');
-        req.on('data', function(chunk) {
-            console.log('recive data');
-            data += chunk;
+    app.use(function (req, res, next) {
+
+        var buf = new Buffer(1024 * 100);
+        var offset = 0;
+
+        req.on('data', function (chunk) {
+            chunk.copy(buf, offset);
+            offset += chunk.length;
         });
 
-        req.on('end', function() {
-            req.body = data;
+        req.on('end', function () {
+            req.chunk = buf;
             next();
         });
+
+        req.on('close', function (err) {
+            console.log('conection was clothed! error:');
+        });
+
     });
     app.use(app.router);
     app.use(express.static(path.join(__dirname, 'public')));
@@ -40,27 +46,23 @@ app.configure(function(){
 
 
 app.configure('development', function () {
-  app.use(express.errorHandler());
+    app.use(express.errorHandler());
 });
 
 app.get('/', routes.index);
-app.get('/users', user.list);
-app.post('/start_transfer', function (req, res) {
-    console.log(req.body);
-    res.send({
-        success: true,
-        data: ''
-    });
-});
 
-app.post('/get_connections', function (req, res) {
-    res.send({
-        connections: [
-            {id: '777'}
-        ]
-    });
-});
+app.post('/register_file/:file_id', manager.registerFile);
 
-http.createServer(app).listen(app.get('port'), function(){
-  console.log("Express server listening on port " + app.get('port'));
+app.post('/send_chunk/:file_id/:connection_id', manager.transferChunk);
+
+app.post('/get_connections/:file_id', manager.getConnectionsPool);
+
+app.get('/register_connection/:file_id', manager.registerConnection);
+
+app.post('/destroy_connection/:file_id/:connection_id', manager.unregisterConnection);
+
+
+
+http.createServer(app).listen(app.get('port'), function () {
+    console.log("Express server listening on port " + app.get('port'));
 });

@@ -4,27 +4,32 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
         _file,
         _listenIntervalID;
 
-    var Connection = function (options) {
-        var _id = options.id,
+    var Connection = function (id) {
+        var _id = id,
             _uploadedSize = 0,
             _chunkSize = config('chunkSize'),
             _totalSize = _file.getSize();
 
         var _isEndOfFile = function () {
+            console.log(_uploadedSize + '===' + _totalSize);
             return _uploadedSize === _totalSize;
         };
 
         var _destroy = function () {
-            console.log('destroy connection with id: ' + _id);
-            delete _connectionsPool[_id];
+            jQuery.ajax({
+                url: config('DESTROY_CONNECTION_URL') + '/' + _file.getId() + '/' + _id,
+                type: 'POST',
+                success: function () {
+//                    delete _connectionsPool[_id];
+                }
+            });
         };
 
         var _send = function () {
             var fileChunk = _file.slice(_uploadedSize, _uploadedSize + _chunkSize);
-            console.log(fileChunk.size);
             xhr({
                 type: 'POST',
-                url: '/start_transfer',
+                url: config('SEND_CHUNK_URL') + '/' + _file.getId() + '/' + _id,
                 data: fileChunk,
                 onSuccess: function () {
                     if (_isEndOfFile()) {
@@ -49,21 +54,20 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
     };
 
     var _initConnections = function (data) {
-        if (data.connections) {
-            data.connections.forEach(function (options) {
-                if (_connectionsPool.hasOwnProperty(options.id)) {
+        if (data.length) {
+            data.forEach(function (connectionId) {
+                if (_connectionsPool.hasOwnProperty(connectionId)) {
                     return;
                 }
-                console.log('new connection with id' + options.id);
-                _connectionsPool[options.id] = new Connection(options);
+                _connectionsPool[connectionId] = new Connection(connectionId);
             });
         }
     };
 
     var _startListen = function () {
-        _listenIntervalID = setTimeout(function () {
+        _listenIntervalID = setInterval(function () {
             jQuery.ajax({
-                url: '/get_connections',
+                url: '/get_connections/' + _file.getId(),
                 type: 'POST',
                 success: function (data) {
                     _initConnections(data);
@@ -72,13 +76,36 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
         }, config('pingTime'));
     };
 
+    var _generateFileLink = function () {
+        return window.location.host + '/register_connection/' + _file.getId();
+//        jQuery.emit('generatedFileLink', window.loation.domain + co)
+    };
+
+    var _registerFile = function () {
+        jQuery.ajax({
+            url: '/register_file/' + _file.getId() + '?' + jQuery.param({
+                name: _file.getName(),
+                size: _file.getSize(),
+                type: _file.getType()
+            }),
+            type: 'POST',
+            success: function (data) {
+                if (data.success) {
+                    console.log('file with id: ' + _file.getId() + ' rgtrd');
+                    console.log(_generateFileLink());
+                    _startListen();
+                }
+            }
+        });
+    };
+
     var _stopListen = function () {
         clearInterval(_listenIntervalID);
     };
 
     var _init = function (file) {
         _file = file;
-        _startListen();
+        _registerFile();
     };
 
     return {
@@ -86,9 +113,11 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
         getConnectionsPool: function () {
             return _connectionsPool;
         },
+        clearConnetionsPool: function () {
+            _connectionsPool = {};
+        },
         startListen: _startListen,
         stopListen: _stopListen
     };
 
 });
-
