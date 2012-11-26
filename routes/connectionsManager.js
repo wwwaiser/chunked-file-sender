@@ -12,6 +12,12 @@ module.exports = (function () {
         };
 
     return {
+        default: function (req, res) {
+            res.render('index', {
+                title: 'Share file'
+            });
+        },
+
         getConnectionsPool: function (req, res) {
             if (!_files[req.route.params.file_id]) {
                 res.send(empty);
@@ -63,8 +69,23 @@ module.exports = (function () {
         unregisterConnection: function (req, res) {
             var params = req.route.params;
             _files[params.file_id].connections[params.connection_id].reciverResponse.end();
-            delete _files[params.file_id][params.connection_id];
+            delete _files[params.file_id].connections[params.connection_id];
             res.end();
+        },
+
+        fileInfo: function (req, res) {
+            console.log(req.headers.host + req.url);
+            var fileId = req.route.params.file_id,
+                file = _files[fileId],
+                protocol = req.connection.encrypted ? 'https' : 'http',
+                params = {
+                    name: file.name,
+                    type: file.type,
+                    size: (file.size / 1024 / 1024).toFixed(2) + 'M',
+                    title: 'Download',
+                    href: protocol + '://' + req.headers.host + '/register_connection/' + fileId
+                };
+            res.render('file_info', params);
         },
 
         transferChunk: function (req, res) {

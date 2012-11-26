@@ -8,21 +8,15 @@ block content
             .blocks
                 div.file-block
                     .choise-button
-                        a.sharetext Share
-                            input(type="file", size="1")
+                        a.download(href= href) Download
                 div.info-block
                     ul.info
                         li
                             span.key Name:
-                            span.value.name
+                            span.value.name=name
                         li
                             span.key Type:
-                            span.value.type
+                            span.value.type=type
                         li
                             span.key Size:
-                            span.value.size
-                        li
-                            span.key URL:
-                            span.value.URL
-                div.progress-block
-                    ul
+                            span.value.size=size

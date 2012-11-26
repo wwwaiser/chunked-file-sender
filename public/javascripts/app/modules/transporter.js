@@ -4,6 +4,13 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
         _file,
         _listenIntervalID;
 
+    /**
+     * Create Connection instance
+     *
+     * @constructor
+     * @this {Connection}
+     * @param {number} id Connection id
+     */
     var Connection = function (id) {
         var _id = id,
             _uploadedSize = 0,
@@ -11,7 +18,7 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
             _totalSize = _file.getSize();
 
         var _isEndOfFile = function () {
-            return _uploadedSize == _totalSize;
+            return _uploadedSize === _totalSize;
         };
 
         var _destroy = function () {
@@ -29,15 +36,17 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
 
         var _send = function () {
             if (_isEndOfFile()) {
-                _destroy();
                 jQuery.eventEmitter.emit('fileUploaded', {
                     connectionId: _id
                 });
+                _destroy();
+                return;
             }
             var fileChunk = _file.slice(_uploadedSize, _uploadedSize + _chunkSize);
             xhr({
                 type: 'POST',
-                url: config('SEND_CHUNK_URL') + '/' + _file.getId() + '/' + _id,
+                url: config('SEND_CHUNK_URL') + '/' + _file.getId() + '/' +
+                    _id + '?chunk_size=' + fileChunk.size,
                 data: fileChunk,
                 onSuccess: function () {
                     _uploadedSize = _uploadedSize + fileChunk.size;
@@ -54,7 +63,10 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
             _send();
         };
 
-        jQuery.eventEmitter.emit('connectionCreated', _id);
+        jQuery.eventEmitter.emit('connectionCreated', {
+            connectionId: _id,
+            file: _file
+        });
         _startTransfer();
 
 
@@ -90,7 +102,7 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
     };
 
     var _generateFileLink = function () {
-        var URL =  location.protocol + location.host + config('REGISTER_CONNECTION_URL') + '/' + _file.getId();
+        var URL =  location.protocol + location.host + config('FILE_INFO_URL') + '/' + _file.getId();
         return URL;
     };
 
@@ -135,14 +147,22 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
     return {
         registerFile: _registerFile,
         unregisterFile: _unregisterFile,
-        startListen: _startListen,
-        stopListen: _stopListen,
-        getConnectionsPool: function () {
-            return _connectionsPool;
+        startListen: function () {
+            _listenIntervalID = setInterval(function () {
+                if (!_file) {
+                    return;
+                }
+                jQuery.ajax({
+                    url: '/get_connections/' + _file.getId(),
+                    type: 'POST',
+                    success: function (data) {
+                        _initConnections(data);
+                    }
+                });
+            }, config('pingTime'));
         },
-        clearConnetionsPool: function () {
-            _connectionsPool = {};
-        }
+
+        stopListen: _stopListen
     };
 
 });

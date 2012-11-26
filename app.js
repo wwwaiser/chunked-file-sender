@@ -20,8 +20,12 @@ app.configure(function () {
     app.use(express.bodyParser());
     app.use(express.methodOverride());
     app.use(function (req, res, next) {
-
-        var buf = new Buffer(1024 * 100);
+        if (!req.query.chunk_size) {
+            next();
+            return;
+        }
+        console.log(req.query.chunk_size);
+        var buf = new Buffer(+req.query.chunk_size);
         var offset = 0;
 
         req.on('data', function (chunk) {
@@ -49,7 +53,7 @@ app.configure('development', function () {
     app.use(express.errorHandler());
 });
 
-app.get('/', routes.index);
+app.get('/', manager.default);
 
 app.post('/register_file/:file_id', manager.registerFile);
 
@@ -60,6 +64,8 @@ app.post('/send_chunk/:file_id/:connection_id', manager.transferChunk);
 app.post('/get_connections/:file_id', manager.getConnectionsPool);
 
 app.get('/register_connection/:file_id', manager.registerConnection);
+
+app.get('/file_info/:file_id', manager.fileInfo)
 
 app.post('/destroy_connection/:file_id/:connection_id', manager.unregisterConnection);
 
