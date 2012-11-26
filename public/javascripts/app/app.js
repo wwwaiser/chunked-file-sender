@@ -2,15 +2,20 @@ require([
     'lib/file',
     'modules/transporter',
     'config',
-    'modules/fileInfo'
+    'modules/info_block'
 ], function (File, transporter, config) {
-
-    var _fileInput = jQuery(config('fileInput'));
+    "use strict";
+    var _fileInput = jQuery(config('fileInput')),
+        _file;
 
     var _onFileSelect = function (e) {
-        var file = new File(e.target.files[0]);
-        jQuery.eventEmitter.emit('fileSelected', file);
-        transporter.init(file);
+        if (_file) {
+            transporter.unregisterFile(_file.getId());
+        }
+
+        _file = new File(e.target.files[0]);
+
+        transporter.registerFile(_file);
     };
 
     var _initEvents = function () {
@@ -18,5 +23,6 @@ require([
     };
 
     _initEvents();
+    transporter.startListen();
 
 });

@@ -8,11 +8,7 @@ define(function () {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
                     response = JSON.parse(xhr.responseText);
-                    if (response.success === true) {
-                        params.onSuccess(response.data);
-                    } else {
-                        params.onError(response.message);
-                    }
+                    params.onSuccess(response.data);
                 } else {
                     params.onError(response);
                 }

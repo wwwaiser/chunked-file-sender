@@ -1,5 +1,5 @@
 (function (jQuery) {
-
+    "use strict";
     jQuery.eventEmitter = {
         _JQInit: function () {
             this._JQ = jQuery(this);

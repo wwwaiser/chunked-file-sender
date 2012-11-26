@@ -35,7 +35,7 @@ app.configure(function () {
         });
 
         req.on('close', function (err) {
-            console.log('conection was clothed! error:');
+            console.log('conection was clothed!');
         });
 
     });
@@ -52,6 +52,8 @@ app.configure('development', function () {
 app.get('/', routes.index);
 
 app.post('/register_file/:file_id', manager.registerFile);
+
+app.post('/unregister_file/:file_id', manager.unregisterFile);
 
 app.post('/send_chunk/:file_id/:connection_id', manager.transferChunk);
 

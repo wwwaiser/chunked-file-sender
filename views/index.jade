@@ -1,10 +1,29 @@
 extends layout
 
 block content
-    h1= title
-    p Welcome to #{title}
-        form(action='/get_connections', method='POST',  enctype='multipart/form-data')
-            fieldset
-                label File:
-                input(type="file", name="file")
+    #wrapper
+        hgroup.huge
+            h1 Easy sharing
+        #main-content
+            .blocks
+                div.file-block
+                    .choise-button
+                        a.sharetext Click
+                            input(type="file", size="1")
+                div.info-block
+                    ul.info
+                        li
+                            span.key Name:
+                            span.value.name
+                        li
+                            span.key Type:
+                            span.value.type
+                        li
+                            span.key Size:
+                            span.value.size
+                        li
+                            span.key URL:
+                            span.value.URL
+                div.progress-block
+                    ul
 

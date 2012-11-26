@@ -11,8 +11,7 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
             _totalSize = _file.getSize();
 
         var _isEndOfFile = function () {
-            console.log(_uploadedSize + '===' + _totalSize);
-            return _uploadedSize === _totalSize;
+            return _uploadedSize == _totalSize;
         };
 
         var _destroy = function () {
@@ -20,24 +19,33 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
                 url: config('DESTROY_CONNECTION_URL') + '/' + _file.getId() + '/' + _id,
                 type: 'POST',
                 success: function () {
-//                    delete _connectionsPool[_id];
+                    delete _connectionsPool[_id];
+                    jQuery.eventEmitter.emit('connectionDestroyed', {
+                        connectionId: _id
+                    });
                 }
             });
         };
 
         var _send = function () {
+            if (_isEndOfFile()) {
+                _destroy();
+                jQuery.eventEmitter.emit('fileUploaded', {
+                    connectionId: _id
+                });
+            }
             var fileChunk = _file.slice(_uploadedSize, _uploadedSize + _chunkSize);
             xhr({
                 type: 'POST',
                 url: config('SEND_CHUNK_URL') + '/' + _file.getId() + '/' + _id,
                 data: fileChunk,
                 onSuccess: function () {
-                    if (_isEndOfFile()) {
-                        _destroy();
-                    } else {
-                        _uploadedSize = _uploadedSize + fileChunk.size;
-                        _send();
-                    }
+                    _uploadedSize = _uploadedSize + fileChunk.size;
+                    jQuery.eventEmitter.emit('chunkUploaded', {
+                        connectionId: _id,
+                        ratio: _uploadedSize / _totalSize
+                    });
+                    setTimeout(_send, config('sendInterval'));
                 }
             });
         };
@@ -46,7 +54,9 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
             _send();
         };
 
+        jQuery.eventEmitter.emit('connectionCreated', _id);
         _startTransfer();
+
 
         this.getId = function () {
             return _id;
@@ -66,6 +76,9 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
 
     var _startListen = function () {
         _listenIntervalID = setInterval(function () {
+            if (!_file) {
+                return;
+            }
             jQuery.ajax({
                 url: '/get_connections/' + _file.getId(),
                 type: 'POST',
@@ -77,13 +90,14 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
     };
 
     var _generateFileLink = function () {
-        return window.location.host + '/register_connection/' + _file.getId();
-//        jQuery.emit('generatedFileLink', window.loation.domain + co)
+        var URL =  location.protocol + location.host + config('REGISTER_CONNECTION_URL') + '/' + _file.getId();
+        return URL;
     };
 
-    var _registerFile = function () {
+    var _registerFile = function (file) {
+        _file = file;
         jQuery.ajax({
-            url: '/register_file/' + _file.getId() + '?' + jQuery.param({
+            url: config('REGISTER_FILE_URL') + '/' + _file.getId() + '?' + jQuery.param({
                 name: _file.getName(),
                 size: _file.getSize(),
                 type: _file.getType()
@@ -91,9 +105,24 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
             type: 'POST',
             success: function (data) {
                 if (data.success) {
-                    console.log('file with id: ' + _file.getId() + ' rgtrd');
-                    console.log(_generateFileLink());
-                    _startListen();
+                    jQuery.eventEmitter.emit('fileSelected', {
+                        file: _file,
+                        URL: _generateFileLink()
+                    });
+                }
+            }
+        });
+    };
+
+    var _unregisterFile = function (fileId) {
+        jQuery.ajax({
+            url: '/unregister_file/' + fileId + '?' + jQuery.param({
+                id: fileId
+            }),
+            type: 'POST',
+            success: function (data) {
+                if (data.success) {
+                    return;
                 }
             }
         });
@@ -103,21 +132,17 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
         clearInterval(_listenIntervalID);
     };
 
-    var _init = function (file) {
-        _file = file;
-        _registerFile();
-    };
-
     return {
-        init: _init,
+        registerFile: _registerFile,
+        unregisterFile: _unregisterFile,
+        startListen: _startListen,
+        stopListen: _stopListen,
         getConnectionsPool: function () {
             return _connectionsPool;
         },
         clearConnetionsPool: function () {
             _connectionsPool = {};
-        },
-        startListen: _startListen,
-        stopListen: _stopListen
+        }
     };
 
 });

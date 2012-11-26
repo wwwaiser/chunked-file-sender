@@ -1,8 +1,8 @@
 doctype 5
 html
-  head
-    title= title
-    link(rel='stylesheet', href='/stylesheets/style.css')
-    script(type="text/javascript", data-main='/javascripts/main.js', src='/javascripts/lib/require.js')
-  body
-    block content
+    head
+        title= title
+        link(rel='stylesheet', href='/stylesheets/style.css')
+        script(type="text/javascript", data-main='/javascripts/main.js', src='/javascripts/lib/require.js')
+    body.outer-wrapper
+        block content
