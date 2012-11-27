@@ -18,7 +18,7 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
             _totalSize = _file.getSize();
 
         /**
-         * Che
+         * Check
          *
          * @return {Boolean}
          * @private

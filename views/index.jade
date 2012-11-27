@@ -2,27 +2,25 @@ extends layout
 
 block content
     .wrapper
-        hgroup.huge
-            h1 Easy sharing
+        h1.title Easy sharing
         .main-content
-            .blocks
-                div.file-block
-                    .choise-button
-                        a.button-text.with-plus Share
-                            input.file(type="file", size="1") sfjdf sjfbhsdbfs
-                div.info-block.hide
-                    ul.info
-                        li
-                            span.key Name:
-                            span.value.name
-                        li
-                            span.key Type:
-                            span.value.type
-                        li
-                            span.key Size:
-                            span.value.size
-                        li
-                            span.key URL:
-                            input.url(type="text", readonly="readonly", value="");
-                div.progress-block
-                    ul
+            div.file-block
+                .choise-button
+                    a.button-text.with-plus Share
+                        input.file(type="file", size="1")
+            div.info-block.hide
+                ul.info
+                    li
+                        span.key Name:
+                        span.value.name
+                    li
+                        span.key Type:
+                        span.value.type
+                    li
+                        span.key Size:
+                        span.value.size
+                    li
+                        span.key URL:
+                        input.url(type="text", readonly="readonly", value="");
+            div.progress-block
+                ul

@@ -2,21 +2,19 @@ extends layout
 
 block content
     .wrapper
-        hgroup.huge
-            h1 Easy sharing
+        h1.title Easy sharing
         .main-content
-            .blocks
-                div.file-block
-                    .choise-button
-                        a.button-text(href= href) Download
-                div.info-block
-                    ul.info
-                        li
-                            span.key Name:
-                            span.value.name= name
-                        li
-                            span.key Type:
-                            span.value.type= type
-                        li
-                            span.key Size:
-                            span.value.size= size
+            div.file-block
+                .choise-button
+                    a.button-text(href= href) Download
+            div.info-block
+                ul.info
+                    li
+                        span.key Name:
+                        span.value.name= name
+                    li
+                        span.key Type:
+                        span.value.type= type
+                    li
+                        span.key Size:
+                        span.value.size= size

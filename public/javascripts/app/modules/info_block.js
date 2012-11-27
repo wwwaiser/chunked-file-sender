@@ -11,7 +11,7 @@ define(['config'], function (config) {
         NAME_BLOCK = '.name',
         SIZE_BLOCK = '.size',
         TYPE_BLOCK = '.type',
-        RATIO_BLOCK = 'span.ratio',
+        PROGRESS_BLOCK = 'span.bar',
         PERCENT_BLOCK = 'span.percent',
         URL_BLOCK = '.url';
 
@@ -86,7 +86,7 @@ define(['config'], function (config) {
     jQuery.eventEmitter.on('chunkUploaded', function (e, data) {
         var width = _progressWidth * data.ratio + PX,
             percent = Math.round(data.ratio * 100);
-        jQuery(DOT + data.connectionId).find(RATIO_BLOCK).width(width);
+        jQuery(DOT + data.connectionId).find(PROGRESS_BLOCK).width(width);
         jQuery(DOT + data.connectionId).find(PERCENT_BLOCK).text(percent + PERCENT);
     });
 

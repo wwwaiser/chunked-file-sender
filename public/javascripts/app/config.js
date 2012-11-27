@@ -13,7 +13,7 @@ define(function () {
         DESTROY_CONNECTION_URL: '/destroy_connection',
         GET_CONNECTIONS_URL: '/get_connections',
         /*   TEMPLATES  */
-        PROGRESS_BLOCK: '<li title="{fileName}" class="progress"><span class="ratio"></span><span class="percent">0 %</span></li>'
+        PROGRESS_BLOCK: '<li title="{fileName}" class="progress"><span class="bar"></span><span class="percent">0 %</span></li>'
     };
 
     return function (key, value) {
