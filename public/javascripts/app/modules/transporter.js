@@ -17,6 +17,12 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
             _chunkSize = config('chunkSize'),
             _totalSize = _file.getSize();
 
+        /**
+         * Che
+         *
+         * @return {Boolean}
+         * @private
+         */
         var _isEndOfFile = function () {
             return _uploadedSize === _totalSize;
         };

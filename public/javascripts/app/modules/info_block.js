@@ -48,6 +48,13 @@ define(['config'], function (config) {
         _infoBlock.find(URL_BLOCK).val(URL);
     };
 
+    /**
+     * Show client connections as blocks with progress bar
+     *
+     * @param {Object} data.file
+     * @param {Number|String} data.connectionId
+     * @private
+     */
     var _renderConnection = function (data) {
         var progressBar = jQuery(_supplant(config('PROGRESS_BLOCK'), {
             fileName: data.file.getName()
@@ -57,6 +64,13 @@ define(['config'], function (config) {
         _progressWrap.append(progressBar);
     };
 
+    /**
+     * Format bytes to megabytes
+     *
+     * @param {Number|String} size
+     * @return {String}
+     * @private
+     */
     var _formatSize = function (size) {
         return (size / 1024 / 1024).toFixed(2);
     };
