@@ -75,6 +75,12 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
         };
     };
 
+    /**
+     * Check connectionsPool for connection and create instance of Connection
+     *
+     * @param {Array} data
+     * @private
+     */
     var _initConnections = function (data) {
         if (data.length) {
             data.forEach(function (connectionId) {
@@ -86,12 +92,23 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
         }
     };
 
+    /**
+     * Generate unique link for file that was selected
+     *
+     * @return {String}
+     * @private
+     */
     var _generateFileLink = function () {
         var URL =  location.protocol + location.host + config('FILE_INFO_URL') + '/' + _file.getId();
         return URL;
     };
 
     return {
+        /**
+         * Register file for transferring
+         *
+         * @param {Object} file
+         */
         registerFile: function (file) {
             _file = file;
             jQuery.ajax({
@@ -112,6 +129,11 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
             });
         },
 
+        /**
+         * Unregister file (Delete from the files array on server)
+         *
+         * @param {Number|String} fileId
+         */
         unregisterFile: function (fileId) {
             jQuery.ajax({
                 url: '/unregister_file/' + fileId + '?' + jQuery.param({
@@ -126,6 +148,9 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
             });
         },
 
+        /**
+         * Start listening for new client connection
+         */
         startListen: function () {
             _listenIntervalID = setInterval(function () {
                 if (!_file) {
@@ -141,9 +166,11 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
             }, config('pingTime'));
         },
 
+        /**
+         * Stop listening for new client connection
+         */
         stopListen: function () {
             clearInterval(_listenIntervalID);
         }
     };
-
 });

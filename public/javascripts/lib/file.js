@@ -1,5 +1,12 @@
 define(function () {
     "use strict";
+    /**
+     * Create File instance
+     *
+     * @constructor
+     * @this {File}
+     * @param blob
+     */
     var File = function (blob) {
         var _file = blob,
             _fileId = Math.random().toString(36).substring(7),

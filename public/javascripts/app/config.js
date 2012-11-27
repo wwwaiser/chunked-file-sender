@@ -1,13 +1,5 @@
 define(function () {
     "use strict";
-    //microteplating
-    String.prototype.supplant = function (o) {
-        return this.replace(/{([^{}]*)}/g,
-            function (a, b) {
-                var r = o[b];
-                return typeof r === 'string' || typeof r === 'number' ? r : a;
-            });
-    };
 
     var config = {
         fileInput: 'input[type="file"]',

@@ -1,15 +1,15 @@
 extends layout
 
 block content
-    #wrapper
+    .wrapper
         hgroup.huge
             h1 Easy sharing
-        #main-content
+        .main-content
             .blocks
                 div.file-block
                     .choise-button
-                        a.sharetext Share
-                            input(type="file", size="1")
+                        a.button-text.with-plus Share
+                            input.file(type="file", size="1") sfjdf sjfbhsdbfs
                 div.info-block.hide
                     ul.info
                         li
@@ -23,6 +23,6 @@ block content
                             span.value.size
                         li
                             span.key URL:
-                            span.value.URL
+                            input.url(type="text", readonly="readonly", value="");
                 div.progress-block
                     ul
