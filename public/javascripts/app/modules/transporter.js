@@ -18,7 +18,7 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
             _totalSize = _file.getSize();
 
         /**
-         * Check
+         * Checking end of file
          *
          * @return {Boolean}
          * @private
@@ -27,6 +27,10 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
             return _uploadedSize === _totalSize;
         };
 
+        /**
+         * destroy connection from connections pool on client and server side
+         * @private
+         */
         var _destroy = function () {
             jQuery.ajax({
                 url: config('DESTROY_CONNECTION_URL') + '/' + _file.getId() + '/' + _id,
@@ -40,6 +44,11 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
             });
         };
 
+        /**
+         * Recursively send chunk of file to server while not end of file
+         *
+         * @private
+         */
         var _send = function () {
             if (_isEndOfFile()) {
                 jQuery.eventEmitter.emit('fileUploaded', {
@@ -76,6 +85,11 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
         _startTransfer();
 
 
+        /**
+         * Return connection id
+         *
+         * @return {String}
+         */
         this.getId = function () {
             return _id;
         };
