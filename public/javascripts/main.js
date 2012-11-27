@@ -1,11 +1,11 @@
 require.config({
     paths: {
         /*    Libraries    */
-        jquery     : '/javascripts/lib/jquery-1.8.2',
+        jquery: '/javascripts/lib/jquery-1.8.2',
         lib: '/javascripts/lib',
 
         /*    Application    */
-        app    : '/javascripts/app/app',
+        app: '/javascripts/app/app',
         modules: '/javascripts/app/modules',
         config: '/javascripts/app/config',
         eventEmitter: '/javascripts/lib/eventEmitter'

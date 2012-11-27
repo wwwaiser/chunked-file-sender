@@ -1,6 +1,7 @@
 define(['config'], function (config) {
+    "use strict";
     var _infoBlock = jQuery('.info-block'),
-        _progressBLock = jQuery('.progress-block ul'),
+        _progressWrap = jQuery('.progress-block ul'),
         _progressWidth = jQuery(config('PROGRESS_BLOCK')).width(),
         /*  CONSTANTS */
         MB = 'M',
@@ -29,7 +30,7 @@ define(['config'], function (config) {
             fileName: data.file.getName()
         }));
         progressBar.addClass(data.connectionId);
-        _progressBLock.append(progressBar);
+        _progressWrap.append(progressBar);
     };
 
     var _formatSize = function (size) {
@@ -45,7 +46,6 @@ define(['config'], function (config) {
     });
 
     jQuery.eventEmitter.on('chunkUploaded', function (e, data) {
-//        console.log(data.ratio)
         var width = _progressWidth * data.ratio + PX,
             percent = Math.round(data.ratio * 100);
         jQuery(DOT + data.connectionId).find(RATIO_BLOCK).width(width);

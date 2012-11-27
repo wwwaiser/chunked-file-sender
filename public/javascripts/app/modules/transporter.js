@@ -86,67 +86,46 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
         }
     };
 
-    var _startListen = function () {
-        _listenIntervalID = setInterval(function () {
-            if (!_file) {
-                return;
-            }
-            jQuery.ajax({
-                url: '/get_connections/' + _file.getId(),
-                type: 'POST',
-                success: function (data) {
-                    _initConnections(data);
-                }
-            });
-        }, config('pingTime'));
-    };
-
     var _generateFileLink = function () {
         var URL =  location.protocol + location.host + config('FILE_INFO_URL') + '/' + _file.getId();
         return URL;
     };
 
-    var _registerFile = function (file) {
-        _file = file;
-        jQuery.ajax({
-            url: config('REGISTER_FILE_URL') + '/' + _file.getId() + '?' + jQuery.param({
-                name: _file.getName(),
-                size: _file.getSize(),
-                type: _file.getType()
-            }),
-            type: 'POST',
-            success: function (data) {
-                if (data.success) {
-                    jQuery.eventEmitter.emit('fileSelected', {
-                        file: _file,
-                        URL: _generateFileLink()
-                    });
-                }
-            }
-        });
-    };
-
-    var _unregisterFile = function (fileId) {
-        jQuery.ajax({
-            url: '/unregister_file/' + fileId + '?' + jQuery.param({
-                id: fileId
-            }),
-            type: 'POST',
-            success: function (data) {
-                if (data.success) {
-                    return;
-                }
-            }
-        });
-    };
-
-    var _stopListen = function () {
-        clearInterval(_listenIntervalID);
-    };
-
     return {
-        registerFile: _registerFile,
-        unregisterFile: _unregisterFile,
+        registerFile: function (file) {
+            _file = file;
+            jQuery.ajax({
+                url: config('REGISTER_FILE_URL') + '/' + _file.getId() + '?' + jQuery.param({
+                    name: _file.getName(),
+                    size: _file.getSize(),
+                    type: _file.getType()
+                }),
+                type: 'POST',
+                success: function (data) {
+                    if (data.success) {
+                        jQuery.eventEmitter.emit('fileSelected', {
+                            file: _file,
+                            URL: _generateFileLink()
+                        });
+                    }
+                }
+            });
+        },
+
+        unregisterFile: function (fileId) {
+            jQuery.ajax({
+                url: '/unregister_file/' + fileId + '?' + jQuery.param({
+                    id: fileId
+                }),
+                type: 'POST',
+                success: function (data) {
+                    if (data.success) {
+                        return;
+                    }
+                }
+            });
+        },
+
         startListen: function () {
             _listenIntervalID = setInterval(function () {
                 if (!_file) {
@@ -162,7 +141,9 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
             }, config('pingTime'));
         },
 
-        stopListen: _stopListen
+        stopListen: function () {
+            clearInterval(_listenIntervalID);
+        }
     };
 
 });

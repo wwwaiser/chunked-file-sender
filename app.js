@@ -65,7 +65,7 @@ app.post('/get_connections/:file_id', manager.getConnectionsPool);
 
 app.get('/register_connection/:file_id', manager.registerConnection);
 
-app.get('/file_info/:file_id', manager.fileInfo)
+app.get('/file_info/:file_id', manager.fileInfo);
 
 app.post('/destroy_connection/:file_id/:connection_id', manager.unregisterConnection);
 
