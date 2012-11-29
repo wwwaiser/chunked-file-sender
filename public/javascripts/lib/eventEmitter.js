@@ -9,7 +9,6 @@
         },
         emit: function (evt, data) {
             !this._JQ && this._JQInit();
-            console.log(evt)
             this._JQ.trigger(evt, data);
         },
         once: function (evt, handler) {

@@ -2,7 +2,6 @@ define(['config'], function (config) {
     "use strict";
     var _infoBlock = jQuery('.info-block'),
         _progressWrap = jQuery('.progress-block ul'),
-        _progressWidth = jQuery(config('PROGRESS_BLOCK')).width(),
         /*  CONSTANTS */
         MB = 'M',
         PX = 'px',
@@ -84,9 +83,13 @@ define(['config'], function (config) {
     });
 
     jQuery.eventEmitter.on('chunkUploaded', function (e, data) {
-        var width = _progressWidth * data.ratio + PX,
+        var totalProgress = jQuery('li.progress').width();
+        var width =  totalProgress * data.ratio + PX,
             percent = Math.round(data.ratio * 100);
-        jQuery(DOT + data.connectionId).find(PROGRESS_BLOCK).width(width);
+        console.log (totalProgress);
+        console.log (data.ratio);
+        console.log (width);
+        jQuery(DOT + data.connectionId).find(PROGRESS_BLOCK).css('width', width);
         jQuery(DOT + data.connectionId).find(PERCENT_BLOCK).text(percent + PERCENT);
     });
 
