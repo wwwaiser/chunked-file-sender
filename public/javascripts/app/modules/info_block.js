@@ -32,6 +32,17 @@ define(['config'], function (config) {
     };
 
     /**
+     * Format bytes to megabytes
+     *
+     * @param {Number|String} size
+     * @return {String}
+     * @private
+     */
+    var _formatSize = function (size) {
+        return (size / 1024 / 1024).toFixed(2);
+    };
+
+    /**
      * Render information about selected file
      *
      * @param {Object} data.file
@@ -63,17 +74,6 @@ define(['config'], function (config) {
         _progressWrap.append(progressBar);
     };
 
-    /**
-     * Format bytes to megabytes
-     *
-     * @param {Number|String} size
-     * @return {String}
-     * @private
-     */
-    var _formatSize = function (size) {
-        return (size / 1024 / 1024).toFixed(2);
-    };
-
     jQuery.eventEmitter.on('fileSelected', function (e, file) {
         _renderFileInfo(file);
     });
@@ -86,9 +86,6 @@ define(['config'], function (config) {
         var totalProgress = jQuery('li.progress').width();
         var width =  totalProgress * data.ratio + PX,
             percent = Math.round(data.ratio * 100);
-        console.log (totalProgress);
-        console.log (data.ratio);
-        console.log (width);
         jQuery(DOT + data.connectionId).find(PROGRESS_BLOCK).css('width', width);
         jQuery(DOT + data.connectionId).find(PERCENT_BLOCK).text(percent + PERCENT);
     });

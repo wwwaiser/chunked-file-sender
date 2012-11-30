@@ -119,7 +119,8 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
      * @private
      */
     var _generateFileLink = function () {
-        var URL =  location.protocol + location.host + config('FILE_INFO_URL') + '/' + _file.getId();
+        var URL =  location.protocol + '//' + location.host + config('FILE_INFO_URL') + '/' + _file.getId();
+        console.log(URL);
         return URL;
     };
 
