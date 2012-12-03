@@ -23,7 +23,6 @@ app.configure(function () {
             next();
             return;
         }
-        console.log(req.query.chunk_size);
         var buf = new Buffer(+req.query.chunk_size);
         var offset = 0;
 

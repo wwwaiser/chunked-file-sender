@@ -1,3 +1,4 @@
+/*global define, jQuery*/
 define(['config'], function (config) {
     "use strict";
     var _infoBlock = jQuery('.info-block'),

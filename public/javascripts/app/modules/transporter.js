@@ -1,3 +1,4 @@
+/*global define, jQuery*/
 define(['config', 'lib/xhr2'], function (config, xhr) {
     "use strict";
     var _connectionsPool = {},
@@ -185,6 +186,7 @@ define(['config', 'lib/xhr2'], function (config, xhr) {
                     }
                 });
             }, config('pingTime'));
+            return _listenIntervalID;
         },
 
         /**

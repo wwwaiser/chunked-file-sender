@@ -1,3 +1,4 @@
+/*global require, jQuery*/
 require([
     'lib/file',
     'modules/transporter',
@@ -5,7 +6,7 @@ require([
     'modules/info_block'
 ], function (File, transporter, config) {
     "use strict";
-    var _fileInput = jQuery(config('fileInput')),
+    var _fileInput = jQuery('input[type="file"]'),
         _infoBlock = jQuery('.info-block'),
         _fileUrl = jQuery("input[type=text]"),
         _file;
